@@ -1,5 +1,7 @@
 # Install
 
+https://docs.wpilib.org/en/stable/docs/zero-to-robot/step-2/wpilib-setup.html
+
 ## Libs
 
 Generally to install you will run the .exe file, from there hit cntrl+shift+p and look for `WPILib : Manage Vendor Libraries and Library`, and then `Install new Libraries (Online)`
