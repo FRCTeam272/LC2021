@@ -2,7 +2,7 @@
 
 ## Libs
 
-Generally to install you will run the .exe file, from there hit cntrl+shift+p and look for `WPILib : Manage Vendor Libraries and Library`, and then `Install new Libraries (Offline)`
+Generally to install you will run the .exe file, from there hit cntrl+shift+p and look for `WPILib : Manage Vendor Libraries and Library`, and then `Install new Libraries (Online)`
 
 [NAV-X](https://pdocs.kauailabs.com/navx-mxp/software/roborio-libraries/java/)
 
