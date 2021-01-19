@@ -21,7 +21,7 @@ It shouldn't ask for a login but we will generate a generic one (Done later)
 
 In VS Code type Ctrl + SHIFT + P 
 
-In the dialogue box that popped up type WPILib: Build
+In the dialogue box that popped up type WPILib: Build Robot Code
 
 ## Deploy Code
 
@@ -29,4 +29,4 @@ While Connected to the robot through WiFi, Ethernet, or USB
 
 In VS Code type Ctrl + SHIFT + P 
 
-In the dialogue box that popped up type WPILib: Deploy
+In the dialogue box that popped up type WPILib: Deploy Robot Code
