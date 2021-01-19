@@ -15,7 +15,13 @@ In the box that popped up type the following
 git pull
 ```
 
-It shouldn't ask for a login but we will generate a generic one (Done later)
+It shouldn't ask for a login but we will generate a generic one
+
+```bash
+Login:
+robotics@lansdalecatholic.com
+<same_as_the_account>
+```
 
 ## Build Code
 
