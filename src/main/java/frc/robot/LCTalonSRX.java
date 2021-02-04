@@ -9,7 +9,6 @@ import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SensorCollection;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.ctre.phoenix.motorcontrol.can.*;
 
 public class LCTalonSRX {
 
@@ -248,12 +247,12 @@ public class LCTalonSRX {
 		return sensorCollection.isRevLimitSwitchClosed();
     }
     
-    private static  double getReversePower(Config config, String revPowerSetting, double defaultValue) {
-        // Make sure value read from config file is negative
-        double value;
-        value = config.getDouble(revPowerSetting, defaultValue);
-        if (value > 0.0)
-            value = value * -1.0;
-        return value;
-    }
+    // private static  double getReversePower(Config config, String revPowerSetting, double defaultValue) {
+    //     // Make sure value read from config file is negative
+    //     double value;
+    //     value = config.getDouble(revPowerSetting, defaultValue);
+    //     if (value > 0.0)
+    //         value = value * -1.0;
+    //     return value;
+    // }
 }
