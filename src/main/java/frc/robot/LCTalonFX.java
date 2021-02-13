@@ -100,8 +100,8 @@ public class LCTalonFX {
 
 		SensorCollection sensorCollection = talonSRX.getSensorCollection();
 		return sensorCollection.isRevLimitSwitchClosed();
-	} */
-    
+	}
+    may need to be re implimented
     private static  double getReversePower(Config config, String revPowerSetting, double defaultValue) {
         // Make sure value read from config file is negative
         double value;
@@ -109,5 +109,6 @@ public class LCTalonFX {
         if (value > 0.0)
             value = value * -1.0;
         return value;
-    }
+	}
+	*/
 }
