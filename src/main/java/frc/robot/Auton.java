@@ -1,5 +1,12 @@
 package frc.robot;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 /*
 GSC Steps
 step 1 access smart dashboard
@@ -44,6 +51,24 @@ public class Auton {
 	private int curr_step = 0;
 	private AutonSteps[] steps;
 
+	//Auton Moves
+	private HashMap<String, Move> listMoves = new HashMap<String, Move>();
+	private HashMap<String, String> attackCodeMatrix;
+	private int totalMoves = 0;
+	private int moveStep = 0;
+	private int idx = 0;
+	private String moveCode = "";
+	private String currMove = "";
+	private Double currMoveValue1 = 0.0;
+	private Double currMoveValue2 = 0.0;
+	private String currMoveStringValue1 = "";
+	private String currMoveStringValue2 = "";
+	private BufferedReader in = null;
+	private FileReader inFr = null;
+	private RobotMoves robotMoves;
+	private ArrayList<Trajectory> trajectoryList;
+	
+
 
 	/**
 	 * Constructor
@@ -54,6 +79,10 @@ public class Auton {
 
 		autonTimer = new Timer(); // timer used to show how long we are in auton
 		stepTimer = new Timer(); // timer used by the steps for various things
+
+		loadAttackCodeMatrix();
+		loadMoves();
+		robotMoves = new RobotMoves();
 		resetAuton();
 	}
 
@@ -81,7 +110,7 @@ public class Auton {
 	}
 
 	
-	public void dispatcher(ControlVars controlVars, Sensors sensors, GyroNavigate gyronav, Config config) {
+	public void dispatcher(ControlVars controlVars, Sensors sensors, GyroNavigate gyronav, Config config,String attackCode) {
 
 		// Motion Magic
 
@@ -225,6 +254,238 @@ public class Auton {
 			SmartDashboard.putNumber("A_StepTime", this.stepTimer.get());
 			SmartDashboard.putNumber("A_AutonTime", this.autonTimer.get());
 		}
+	}
+
+	private void loadMotionProfile(String fileName) {
+    	
+		try {
+			
+			String row;
+			String[] fields;
+			
+				this.trajectoryList = new ArrayList<Trajectory>();
+				this.inFr = new FileReader("/c/" + fileName);
+			this.in = new BufferedReader(this.inFr);
+
+			while ((row = in.readLine()) != null) {
+				fields = row.split(",");
+				if (fields.length == 3) {				
+					try {
+						Trajectory trajectory= new Trajectory();
+						trajectory.setSpeed(Double.parseDouble(fields[0].trim()));
+						trajectory.setAngle(Double.parseDouble(fields[1].trim()));
+						trajectory.setRotation(Double.parseDouble(fields[2].trim()));
+						this.trajectoryList.add(trajectory);
+					} catch (NumberFormatException e) {
+						System.out.println("Motion profile " + fileName + " Numberformat Exception !!");
+					}
+				}					
+			}
+		} catch (FileNotFoundException e) {
+			System.out.println("Motion profile " + fileName + " not found.");
+			
+		} catch (IOException e) {
+			System.out.println("Motion profile " + fileName + " I/O error.");
+			
+		} finally {
+			try {
+				if (this.in != null)
+					this.in.close();
+				if (this.inFr != null)
+					this.inFr.close();
+			} catch (IOException e) {
+			}
+		}
+	
+	}
+
+	private boolean motionProfile(ControlVars controlVars, Sensors sensors, Double distance, Double angle, String rpFilename) {
+		
+		boolean replay;
+		double  spd;
+		double  ang;
+		
+		replay = false;
+		if (this.stepIsSetup == false) {
+			if (rpFilename != null && rpFilename.length() > 0) {
+				System.out.println("loading Motion profile for replay");
+				replay = true;
+				this.loadMotionProfile(rpFilename);
+			} else {
+				this.loadMotionProfile(String.format("mp-%d-%d.csv",  distance.intValue(),  angle.intValue()));
+			}
+			
+			if(this.trajectoryList==null || this.trajectoryList.isEmpty()) {
+				return true;
+			}
+			
+			this.stepTimer.reset();
+			this.stepTimer.start();
+			this.stepIsSetup = true;
+			this.idx = 0;
+			sensors.zeroGyroBearing();
+		}
+		this.idx = (int) Math.round(this.stepTimer.get() / 0.022);
+		if (this.idx < this.trajectoryList.size()) {
+			if (replay) {
+				controlVars.setRobotAngle((double)this.trajectoryList.get(idx).getAngle());
+				controlVars.setRobotSpeed((double)this.trajectoryList.get(idx).getSpeed());
+			} else {
+				ang = ((double)this.trajectoryList.get(idx).getAngle() * -1.0) + Math.PI / 2;
+				spd = (double)this.trajectoryList.get(idx).getSpeed();
+				controlVars.setRobotSpeed(Math.sin(ang) * spd); 
+				controlVars.setRobotAngle(Math.cos(ang) * spd);
+			}
+			controlVars.setRobotRotation((double)this.trajectoryList.get(idx).getRotation());		
+			controlVars.setGyroDrive(true);
+			System.out.println("Motion Profile Distance : " + distance + " ,Angle : " + angle);
+			System.out.println("Step: "+ idx + " ,Speed: " + controlVars.getRobotSpeed() + " ,Angle: " + controlVars.getRobotAngle() + " ,Rotation: " + controlVars.getRobotRotation());
+			
+			
+			//this.idx++;
+			return false;
+		} else {
+			controlVars.setRobotSpeed(0.0); 
+			controlVars.setRobotAngle(0.0);
+			controlVars.setRobotRotation(0.0);		
+			controlVars.setGyroDrive(true);
+			return true;
+		}			
+	}
+
+	public void loadMoves() {
+
+		String fileName = "/c/AutonMoves.txt";
+
+		try {
+			totalMoves = 0;
+
+			BufferedReader in = new BufferedReader(new FileReader(fileName));
+
+			String line;
+			while ((line = in.readLine()) != null) {
+
+				line = line.trim();
+
+				if (line.length() == 0 || // skip empty line
+						line.charAt(0) == '#') // skip commented line
+					continue;
+				
+				Move move = this.extractMoveDetails(line);
+				listMoves.put(move.getCode(), move);
+				totalMoves++;
+
+			}
+
+			in.close();
+
+			System.out.println("Auton.loadMoves(): Completed with " + Integer.toString(totalMoves) + " loaded...");
+			return;
+
+		} catch (IOException e) {
+			System.out.println("Auton.loadMoves(): ****ERROR: Failed to load the file " + fileName
+					+ "   Exception:" + e + "  Reason:" + e.getMessage());
+		}
+
+		// if we get here then we indicate a failed load
+		totalMoves = 0;
+
+		return; // no moves
+	}
+	
+	private Move extractMoveDetails(String line) {
+		String[] parts = line.split("\\|");
+		Move move = new Move();
+		move.setCode(parts[0].toString().trim());
+		move.setDescription(parts[1].toString().trim());
+
+		if (parts.length > 2) {
+			move.setValue1(parts[2].trim());
+		}
+		
+		if (parts.length > 3) {
+			move.setValue2(parts[3].trim());
+		}
+		return move;
+			
+	}
+	
+	private void getMoveValues(String moveCode) {
+
+		this.currMove = "noop";
+		this.currMoveValue1 = 0.0;
+		this.currMoveValue2 = 0.0;
+		this.currMoveStringValue1 = "";
+		this.currMoveStringValue2 = "";
+		
+		if(listMoves.containsKey(moveCode)) {
+			this.currMove = listMoves.get(moveCode).getDescription();
+			this.currMoveStringValue1 = listMoves.get(moveCode).getStringValue1();
+			this.currMoveValue1 = listMoves.get(moveCode).getValue1();
+			this.currMoveStringValue2 = listMoves.get(moveCode).getStringValue2();
+			this.currMoveValue2 = listMoves.get(moveCode).getValue2();
+		}		
+	}
+
+	public String computeAttackCode (String attackCode, String fieldRandomization) {
+		
+		String key;
+		String result;
+		
+		key = attackCode + fieldRandomization;
+		result = attackCodeMatrix.get(key);
+		if (result == null || result.length() == 0)
+			return attackCode;
+		else
+			return result;
+	}
+	
+	private void loadAttackCodeMatrix() {
+	
+		this.attackCodeMatrix = new HashMap<String, String>(40);
+		this.attackCodeMatrix.put("11LLL", "11");
+		this.attackCodeMatrix.put("11LRL", "11");
+		this.attackCodeMatrix.put("11RLR", "11");
+		this.attackCodeMatrix.put("11RRR", "11");
+		this.attackCodeMatrix.put("12LLL", "15");
+		this.attackCodeMatrix.put("12LRL", "15");
+		this.attackCodeMatrix.put("12RLR", "11");
+		this.attackCodeMatrix.put("12RRR", "11");
+		this.attackCodeMatrix.put("13LLL", "17");
+		this.attackCodeMatrix.put("13LRL", "15");
+		this.attackCodeMatrix.put("13RLR", "17");
+		this.attackCodeMatrix.put("13RRR", "11");
+	
+		this.attackCodeMatrix.put("21LLL", "22");
+		this.attackCodeMatrix.put("21LRL", "22");
+		this.attackCodeMatrix.put("21RLR", "21");
+		this.attackCodeMatrix.put("21RRR", "21");
+		this.attackCodeMatrix.put("22LLL", "23");
+		this.attackCodeMatrix.put("22LRL", "23");
+		this.attackCodeMatrix.put("22RLR", "24");
+		this.attackCodeMatrix.put("22RRR", "24");
+		this.attackCodeMatrix.put("23LLL", "23");
+		this.attackCodeMatrix.put("23LRL", "23");
+		this.attackCodeMatrix.put("23RLR", "24");
+		this.attackCodeMatrix.put("23RRR", "24");
+
+		this.attackCodeMatrix.put("31LLL", "32");
+		this.attackCodeMatrix.put("31LRL", "32");
+		this.attackCodeMatrix.put("31RLR", "32");
+		this.attackCodeMatrix.put("31RRR", "32");
+		this.attackCodeMatrix.put("32LLL", "32");
+		this.attackCodeMatrix.put("32LRL", "32");
+		this.attackCodeMatrix.put("32RLR", "36");
+		this.attackCodeMatrix.put("32RRR", "36");
+		this.attackCodeMatrix.put("33LLL", "32");
+		this.attackCodeMatrix.put("33LRL", "38");
+		this.attackCodeMatrix.put("33RLR", "36");
+		this.attackCodeMatrix.put("33RRR", "38");
+	
+	}
+
+	public HashMap<String, Move> getListMoves() {
+		return listMoves;
 	}
 
 }
