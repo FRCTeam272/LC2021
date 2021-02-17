@@ -11,6 +11,9 @@ package frc.robot;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
@@ -72,9 +75,9 @@ public class LimeLight {
         return latency;
     }
 
-    // private void resetPilelineLatency(){
-    //     m_table.getEntry("tl").setValue(0.0);
-    // }
+    private void resetPilelineLatency(){
+        m_table.getEntry("tl").setValue(0.0);
+    }
 
      /**
         0	use the LED Mode set in the current pipeline
