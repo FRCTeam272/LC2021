@@ -9,8 +9,6 @@ package frc.robot;
 
 import java.io.IOException;
 
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.cscore.UsbCamera;
@@ -79,10 +77,6 @@ public class Robot extends TimedRobot {
     private Climber climber;
     private String activeUSBCamera;
 
-    private String attackCode = "11";
-	private String computedAttackCode = "11";
-    private String gameData;
-
     @Override
     public void robotInit() {
 
@@ -118,7 +112,6 @@ public class Robot extends TimedRobot {
         telem = new LCTelemetry();
         telem.loadConfig(config);
         auton = new Auton();
-        auton.loadMoves();
 
 
         // Set up camera server for driving camera
@@ -196,17 +189,12 @@ public class Robot extends TimedRobot {
         telem.saveSpreadSheet();
         telem.restartTimer();
 
-        auton.loadMoves();
-
     }
 
     @Override
     public void autonomousInit() {
         sensors.zeroGyroBearing();
         auton.resetAuton();
-
-        this.gameData = DriverStation.getInstance().getGameSpecificMessage();
-		this.computedAttackCode = auton.computeAttackCode(this.attackCode, this.gameData);
     }
 
     @Override
@@ -339,7 +327,7 @@ public class Robot extends TimedRobot {
             
 
             if(isAuton){
-                auton.dispatcher(controlVars, sensors, gyroNavigate, config,this.computedAttackCode);
+                auton.dispatcher(controlVars, sensors, gyroNavigate, config);
             }
 
             driveTrain.update(controlVars, sensors, gyroNavigate);
@@ -367,17 +355,9 @@ public class Robot extends TimedRobot {
     public void testPeriodic() {
     }
 
-    public void updatePreferences()  {
-
-		this.attackCode = Preferences.getInstance().getString("AttackCode", "22");
-	}
-
     public void outputToDashboard(boolean minDisplay) {
         SmartDashboard.putBoolean("CalibrateDrives", this.calibrateDrives);
         SmartDashboard.putBoolean("fieldCentricDrive", this.fieldCentricDrive);
-
-        SmartDashboard.putString("AttackCode", this.attackCode);
-		SmartDashboard.putString("ComputedAttackCode", this.computedAttackCode);
     }
 
 }
