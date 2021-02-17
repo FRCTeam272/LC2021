@@ -726,17 +726,4 @@ public class ControlVars {
         this.shooterHoodBottom = shooterHoodBottom;
     }
 
-	public void moveForward(double rotations) {
-        int encoder = 0;
-        int speed = 1;
-        if (rotations < 0){
-            speed = -1;
-        }
-        
-        while(encoder < rotations){
-            setRobotSpeed(speed);
-            encoder++; // TODO find the encoder value
-        }
-	}
-
 }
