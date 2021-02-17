@@ -1,5 +1,7 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 /****************************************************************************************************
  * Class used to attack the tower face for the Lansdale Catholic Team 272 2106 Robot in the Stronghold challenge.
  * It must use camera targeting to be sure it is facing the tower face.  

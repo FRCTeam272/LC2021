@@ -58,15 +58,12 @@ public class Auton {
 	}
 
 	private void getSteps() {
-		// TODO update the Smart Dashboard
 		// get the auton type
 		boolean is_gsc = true; // replace with the proper call
 		if(is_gsc){
-			
-			Alliance temp = Alliance.BLUE_A; // figure out how to pull from RADIO Buttons, smart dashboard
-			steps = new Auton_GSC(temp).getSteps();
+			Alliance temp = Alliance.BLUE_A; // figurre out how to pull from RADIO Buttons, smart dashboard
+			steps = new Auton_GSC(temp).steps;
 		}
-
 	}
 
 	public void resetAuton() {
@@ -82,8 +79,6 @@ public class Auton {
 
 	
 	public void dispatcher(ControlVars controlVars, Sensors sensors, GyroNavigate gyronav, Config config) {
-
-		// Motion Magic
 
 		if (!this.started) {
 			this.autonTimer.reset();
