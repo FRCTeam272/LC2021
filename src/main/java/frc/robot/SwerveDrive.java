@@ -55,7 +55,7 @@ public class SwerveDrive {
 		xTrack = config.getDouble("xTrack", 15.0);
 		yTrack = config.getDouble("yTrack", 20.0);
 		this.xLoc = (loc.charAt(0) == 'l') ? xTrack / -2.0 : xTrack / 2.0;
-		this.yLoc = (loc.charAt(1) == 'r') ? yTrack / -2.0 : xTrack / 2.0;
+		this.yLoc = (loc.charAt(1) == 'r') ? yTrack / -2.0 : yTrack / 2.0;
 		loadConfig(config);
 		this.turnTalonPosition = this.turnForwardPosition;
 		this.averageWheelSpeed = 0.0;
