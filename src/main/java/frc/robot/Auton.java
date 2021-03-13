@@ -67,6 +67,9 @@ public class Auton {
 	private FileReader inFr = null;
 	private RobotMoves robotMoves;
 	private ArrayList<Trajectory> trajectoryList;
+
+	private ArrayList<ReplayInput> replayInputList;
+
 	
 
 
@@ -487,5 +490,48 @@ public class Auton {
 	public HashMap<String, Move> getListMoves() {
 		return listMoves;
 	}
+
+	private void loadReplayInputs(String fileName){
+
+        try {
+			
+			String row;
+			String[] fields;
+			
+				this.replayInputList = new ArrayList<ReplayInput>();
+				this.inFr = new FileReader("/c/" + fileName);
+			this.in = new BufferedReader(this.inFr);
+
+			while ((row = in.readLine()) != null) {
+				fields = row.split(",");
+				if (fields.length == 3) {				
+					try {
+						ReplayInput replayInput= new ReplayInput();
+						replayInput.setxAxis(Double.parseDouble(fields[0].trim()));
+						replayInput.setyAxis(Double.parseDouble(fields[1].trim()));
+						replayInput.setzAxis(Double.parseDouble(fields[2].trim()));
+						this.replayInputList.add(replayInput);
+					} catch (NumberFormatException e) {
+						System.out.println("Replay profile " + fileName + " Numberformat Exception !!");
+					}
+				}					
+			}
+		} catch (FileNotFoundException e) {
+			System.out.println("Replay profile " + fileName + " not found.");
+			
+		} catch (IOException e) {
+			System.out.println("Replay profile " + fileName + " I/O error.");
+			
+		} finally {
+			try {
+				if (this.in != null)
+					this.in.close();
+				if (this.inFr != null)
+					this.inFr.close();
+			} catch (IOException e) {
+			}
+		}
+
+    }
 
 }
