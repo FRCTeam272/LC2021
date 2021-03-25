@@ -79,7 +79,7 @@ public class Robot extends TimedRobot {
     private Climber climber;
     private String activeUSBCamera;
 
-    private String attackCode = "11";
+    private String attackCode = SmartDashboard.getString("AttackCode", "11");
 	private String computedAttackCode = "11";
     private String gameData;
 
@@ -202,7 +202,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        this.attackCode = SmartDashboard.getString("AttackCode", "11LLL");
+        this.attackCode = SmartDashboard.getString("AttackCode", "11");
         sensors.zeroGyroBearing();
         auton.resetAuton();
 
