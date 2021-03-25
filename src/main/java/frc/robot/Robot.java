@@ -202,9 +202,9 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+        this.attackCode = SmartDashboard.getString("AttackCode", "11LLL");
         sensors.zeroGyroBearing();
         auton.resetAuton();
-        this.attackCode = SmartDashboard.getString("Attack Code", "11")
 
         this.gameData = DriverStation.getInstance().getGameSpecificMessage();
 		this.computedAttackCode = auton.computeAttackCode(this.attackCode, this.gameData);
