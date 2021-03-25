@@ -79,7 +79,7 @@ public class Robot extends TimedRobot {
     private Climber climber;
     private String activeUSBCamera;
 
-    private String attackCode = SmartDashboard.getString("AttackCode", "11");
+    private String attackCode = SmartDashboard.getString("Auto Selector", "11");
 	private String computedAttackCode = "11";
     private String gameData;
 
