@@ -1,14 +1,7 @@
 #Code       Move                    Value
 # GSC Red 1; start point centered with B1
-1101    |   MovePoint           |   2
-1102    |   AdjustionAngle      |   90
-1103    |   MovePoint           |   2
-1104    |   AdjustionAngle      |   -90
-1105    |   MovePoint           |   2
-1106    |   AdjustionAngle      |   -90
-1107    |   MovePoint           |   3
-1108    |   AdjustionAngle      |   90
-1109    |   MovePoint           |   9
+1101   |  motionProfile     | AttachCode_11_replay.csv
+
 
 # GSC Blue 1; start point centered with D1
 1201    | MovePoint             |   1
