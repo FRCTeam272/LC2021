@@ -7,6 +7,7 @@
 
 package frc.robot;
 
+import java.io.FileWriter;
 import java.io.IOException;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -18,6 +19,7 @@ import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import java.util.ArrayList;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -82,6 +84,7 @@ public class Robot extends TimedRobot {
     private String attackCode = SmartDashboard.getString("Auto Selector", "11");
 	private String computedAttackCode = "11";
     private String gameData;
+    private ArrayList<ReplayInput> replayInputList;
 
     @Override
     public void robotInit() {
@@ -195,8 +198,9 @@ public class Robot extends TimedRobot {
     public void disabledInit() {
         telem.saveSpreadSheet();
         telem.restartTimer();
-
+        this.writeRecordedTrajectory();
         auton.loadMoves();
+        
 
     }
 
@@ -229,6 +233,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+        this.attackCode = SmartDashboard.getString("AttackCode", "11");
         cameraSelection.setString(this.usbCamera0.getName());
     }
 
@@ -338,7 +343,20 @@ public class Robot extends TimedRobot {
             controlVars.setFieldCentricDrive(this.fieldCentricDrive);
             driveTrain.mapInputsToControlVars(inputs, controlVars);
             
+            if(inputs.getButton(107) && inputs.getButtonStateChanged(107)){
+                replayInputList = new ArrayList<ReplayInput>();
+            
+            }
 
+            if(inputs.getButton(107)){
+                ReplayInput replay = new ReplayInput();
+                replay.setxAxis(inputs.getXAxisValue());
+                replay.setyAxis(inputs.getYAxisValue());
+                replay.setzAxis(inputs.getZAxisValue());
+                replayInputList.add(replay);
+            }
+            
+            
             if(isAuton){
                 auton.dispatcher(controlVars, sensors, gyroNavigate, config,this.computedAttackCode);
             }
@@ -380,5 +398,27 @@ public class Robot extends TimedRobot {
         SmartDashboard.putString("AttackCode", this.attackCode);
 		SmartDashboard.putString("ComputedAttackCode", this.computedAttackCode);
     }
+
+    public void writeRecordedTrajectory() {
+        if(this.replayInputList !=null && this.replayInputList.size()>0) {
+            try {
+                FileWriter outputFile = new FileWriter("/c/AttachCode_" + this.attackCode + "_replay.csv");
+                this.replayInputList.forEach((replay)->{
+                    try {
+                        outputFile.write(String.format("%f, %f, %f\n", replay.getxAxis(), replay.getyAxis(), replay.getzAxis()));
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                });
+                
+                outputFile.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }  
+    }
+      
+}
 
 }
