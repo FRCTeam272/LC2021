@@ -84,7 +84,7 @@ public class Robot extends TimedRobot {
     private String attackCode = SmartDashboard.getString("Auto Selector", "11");
 	private String computedAttackCode = "11";
     private String gameData;
-    private ArrayList<ReplayInput> replayInputList;
+    private ArrayList<Trajectory> trajectoryList;
 
     @Override
     public void robotInit() {
@@ -344,16 +344,16 @@ public class Robot extends TimedRobot {
             driveTrain.mapInputsToControlVars(inputs, controlVars);
             
             if(inputs.getButton(107) && inputs.getButtonStateChanged(107)){
-                replayInputList = new ArrayList<ReplayInput>();
+                trajectoryList = new ArrayList<Trajectory>();
             
             }
 
             if(inputs.getButton(107)){
-                ReplayInput replay = new ReplayInput();
-                replay.setxAxis(inputs.getXAxisValue());
-                replay.setyAxis(inputs.getYAxisValue());
-                replay.setzAxis(inputs.getZAxisValue());
-                replayInputList.add(replay);
+                Trajectory replay = new Trajectory();
+                replay.setAngle(controlVars.getRobotAngle());
+                replay.setRotation(controlVars.getRobotRotation());
+                replay.setSpeed(controlVars.getRobotSpeed());
+                trajectoryList.add(replay);
             }
             
             
@@ -400,12 +400,12 @@ public class Robot extends TimedRobot {
     }
 
     public void writeRecordedTrajectory() {
-        if(this.replayInputList !=null && this.replayInputList.size()>0) {
+        if(this.trajectoryList !=null && this.trajectoryList.size()>0) {
             try {
                 FileWriter outputFile = new FileWriter("/c/AttachCode_" + this.attackCode + "_replay.csv");
-                this.replayInputList.forEach((replay)->{
+                this.trajectoryList.forEach((replay)->{
                     try {
-                        outputFile.write(String.format("%f, %f, %f\n", replay.getxAxis(), replay.getyAxis(), replay.getzAxis()));
+                        outputFile.write(String.format("%f, %f, %f\n", replay.getAngle(), replay.getRotation(), replay.getSpeed()));
                     } catch (IOException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();

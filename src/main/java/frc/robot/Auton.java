@@ -44,6 +44,8 @@ public class Auton {
 	private Timer autonTimer;
 	private Timer stepTimer;
 	private boolean started; // tells us that we have started auton
+	private boolean isDone = false; // flag to indicate our auton program is done
+	private boolean moveIsDone = false;
 	private boolean stepIsSetup = false;
 	private String stepDescription;
 	private autonSteps autonStep;
@@ -68,7 +70,6 @@ public class Auton {
 	private RobotMoves robotMoves;
 	private ArrayList<Trajectory> trajectoryList;
 
-	private ArrayList<ReplayInput> replayInputList;
 
 	
 
@@ -106,6 +107,8 @@ public class Auton {
 		this.started = false;
 		this.autonStep = autonSteps.TARGET;
 		this.stepIsSetup = false;
+		this.isDone = false;
+		this.moveIsDone = false;
 		this.stepDescription = "Reset";
 		this.autonTimer.reset();
 		this.stepTimer.reset();
@@ -116,8 +119,8 @@ public class Auton {
 	public void dispatcher(ControlVars controlVars, Sensors sensors, GyroNavigate gyronav, Config config,String attackCode) {
 
 		// Motion Magic
-
-		if (!this.started) {
+		//TODO: previous auton
+		/*if (!this.started) {
 			this.autonTimer.reset();
 			this.autonTimer.start();
 			controlVars.setIntakeDown(true);
@@ -132,8 +135,53 @@ public class Auton {
 		controlVars.moveForward(steps[curr_step].rotations);
 		controlVars.setRobotAngle(steps[curr_step].adjust_angle);
 
-		curr_step++;
+		curr_step++; */
 		
+		//New Auton from file
+		if (this.isDone )
+			return;
+
+		if (!this.started) {
+			this.autonTimer.start();
+			this.autonTimer.reset();
+			this.moveStep = 1;
+			this.moveIsDone = false;
+			if (this.totalMoves == 0) {
+	
+				this.isDone = true;
+				stepDescription = "TotalMoves==0, no moves, failed.";
+				return;				
+			}
+			this.started = true;
+		}
+
+		// Combine these to get the move to look up in the list
+		this.moveCode = String.format("%s%02d", attackCode, moveStep);
+		getMoveValues(this.moveCode);
+		if (this.currMove.equalsIgnoreCase("motionProfile")) {
+			stepDescription = String.format("Calling: motionProfile mp-%d-%d.csv",  this.currMoveValue1.intValue(),  this.currMoveValue2.intValue());
+		} else if (this.currMove.equalsIgnoreCase("recordedProfile")) {
+			stepDescription = "Calling: recordedProfile " + this.currMoveStringValue1;
+		} else
+			stepDescription = "Calling: [" + this.currMove + "] (" + this.currMoveStringValue1 + ") (" + this.currMoveStringValue2 + ")";
+
+
+		switch (this.currMove) {
+			
+			case "recordedProfile":  //                  ignored  ignored  filename of recorded profile
+				moveIsDone = motionProfile(controlVars, sensors, 0.0, 0.0, this.currMoveStringValue1);
+				break;
+
+			default:
+				stepDescription = "Default: Unknown move [" + this.currMove + "]";
+				this.isDone = true;
+		}
+
+		if (this.moveIsDone == true) {
+			
+			this.stepIsSetup = false;
+			this.moveStep++;
+		}
 
 		// switch (this.autonStep) {
 
@@ -267,7 +315,7 @@ public class Auton {
 			String[] fields;
 			
 				this.trajectoryList = new ArrayList<Trajectory>();
-				this.inFr = new FileReader("/c/" + fileName);
+				this.inFr = new FileReader("/c/" + fileName );
 			this.in = new BufferedReader(this.inFr);
 
 			while ((row = in.readLine()) != null) {
@@ -275,9 +323,9 @@ public class Auton {
 				if (fields.length == 3) {				
 					try {
 						Trajectory trajectory= new Trajectory();
-						trajectory.setSpeed(Double.parseDouble(fields[0].trim()));
-						trajectory.setAngle(Double.parseDouble(fields[1].trim()));
-						trajectory.setRotation(Double.parseDouble(fields[2].trim()));
+						trajectory.setAngle(Double.parseDouble(fields[0].trim()));
+						trajectory.setRotation(Double.parseDouble(fields[1].trim()));
+						trajectory.setSpeed(Double.parseDouble(fields[2].trim()));
 						this.trajectoryList.add(trajectory);
 					} catch (NumberFormatException e) {
 						System.out.println("Motion profile " + fileName + " Numberformat Exception !!");
@@ -314,9 +362,7 @@ public class Auton {
 				System.out.println("loading Motion profile for replay");
 				replay = true;
 				this.loadMotionProfile(rpFilename);
-			} else {
-				this.loadMotionProfile(String.format("mp-%d-%d.csv",  distance.intValue(),  angle.intValue()));
-			}
+			} 
 			
 			if(this.trajectoryList==null || this.trajectoryList.isEmpty()) {
 				return true;
@@ -326,26 +372,22 @@ public class Auton {
 			this.stepTimer.start();
 			this.stepIsSetup = true;
 			this.idx = 0;
-			sensors.zeroGyroBearing();
+			
 		}
-		this.idx = (int) Math.round(this.stepTimer.get() / 0.022);
+		//this.idx = (int) Math.round(this.stepTimer.get() / 0.022);
 		if (this.idx < this.trajectoryList.size()) {
 			if (replay) {
 				controlVars.setRobotAngle((double)this.trajectoryList.get(idx).getAngle());
 				controlVars.setRobotSpeed((double)this.trajectoryList.get(idx).getSpeed());
-			} else {
-				ang = ((double)this.trajectoryList.get(idx).getAngle() * -1.0) + Math.PI / 2;
-				spd = (double)this.trajectoryList.get(idx).getSpeed();
-				controlVars.setRobotSpeed(Math.sin(ang) * spd); 
-				controlVars.setRobotAngle(Math.cos(ang) * spd);
+				controlVars.setRobotRotation((double)this.trajectoryList.get(idx).getRotation());
 			}
 			controlVars.setRobotRotation((double)this.trajectoryList.get(idx).getRotation());		
-			controlVars.setGyroDrive(true);
+			controlVars.setGyroDrive(false);
 			System.out.println("Motion Profile Distance : " + distance + " ,Angle : " + angle);
 			System.out.println("Step: "+ idx + " ,Speed: " + controlVars.getRobotSpeed() + " ,Angle: " + controlVars.getRobotAngle() + " ,Rotation: " + controlVars.getRobotRotation());
 			
 			
-			//this.idx++;
+			this.idx++;
 			return false;
 		} else {
 			controlVars.setRobotSpeed(0.0); 
@@ -491,47 +533,8 @@ public class Auton {
 		return listMoves;
 	}
 
-	private void loadReplayInputs(String fileName){
+	
 
-        try {
-			
-			String row;
-			String[] fields;
-			
-				this.replayInputList = new ArrayList<ReplayInput>();
-				this.inFr = new FileReader("/c/" + fileName);
-			this.in = new BufferedReader(this.inFr);
-
-			while ((row = in.readLine()) != null) {
-				fields = row.split(",");
-				if (fields.length == 3) {				
-					try {
-						ReplayInput replayInput= new ReplayInput();
-						replayInput.setxAxis(Double.parseDouble(fields[0].trim()));
-						replayInput.setyAxis(Double.parseDouble(fields[1].trim()));
-						replayInput.setzAxis(Double.parseDouble(fields[2].trim()));
-						this.replayInputList.add(replayInput);
-					} catch (NumberFormatException e) {
-						System.out.println("Replay profile " + fileName + " Numberformat Exception !!");
-					}
-				}					
-			}
-		} catch (FileNotFoundException e) {
-			System.out.println("Replay profile " + fileName + " not found.");
-			
-		} catch (IOException e) {
-			System.out.println("Replay profile " + fileName + " I/O error.");
-			
-		} finally {
-			try {
-				if (this.in != null)
-					this.in.close();
-				if (this.inFr != null)
-					this.inFr.close();
-			} catch (IOException e) {
-			}
-		}
-
-    }
+   
 
 }
