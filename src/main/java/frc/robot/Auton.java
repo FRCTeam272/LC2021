@@ -320,7 +320,7 @@ public class Auton {
 
 			while ((row = in.readLine()) != null) {
 				fields = row.split(",");
-				if (fields.length == 3) {				
+				if (fields.length == 6) {				
 					try {
 						Trajectory trajectory= new Trajectory();
 						trajectory.setAngle(Double.parseDouble(fields[0].trim()));
