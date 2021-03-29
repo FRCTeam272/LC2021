@@ -168,7 +168,7 @@ public class Auton {
 
 		switch (this.currMove) {
 			
-			case "recordedProfile":  //                  ignored  ignored  filename of recorded profile
+			case "motionProfile":  //                  ignored  ignored  filename of recorded profile
 				moveIsDone = motionProfile(controlVars, sensors, 0.0, 0.0, this.currMoveStringValue1);
 				break;
 
@@ -376,13 +376,13 @@ public class Auton {
 		}
 		//this.idx = (int) Math.round(this.stepTimer.get() / 0.022);
 		if (this.idx < this.trajectoryList.size()) {
-			if (replay) {
-				controlVars.setRobotAngle((double)this.trajectoryList.get(idx).getAngle());
-				controlVars.setRobotSpeed((double)this.trajectoryList.get(idx).getSpeed());
-				controlVars.setRobotRotation((double)this.trajectoryList.get(idx).getRotation());
-			}
-			controlVars.setRobotRotation((double)this.trajectoryList.get(idx).getRotation());		
+			
+			controlVars.setRobotAngle((double)this.trajectoryList.get(idx).getAngle());
+			controlVars.setRobotSpeed((double)this.trajectoryList.get(idx).getSpeed());
+			controlVars.setRobotRotation((double)this.trajectoryList.get(idx).getRotation());
 			controlVars.setGyroDrive(false);
+				
+			
 			System.out.println("Motion Profile Distance : " + distance + " ,Angle : " + angle);
 			System.out.println("Step: "+ idx + " ,Speed: " + controlVars.getRobotSpeed() + " ,Angle: " + controlVars.getRobotAngle() + " ,Rotation: " + controlVars.getRobotRotation());
 			
@@ -393,7 +393,7 @@ public class Auton {
 			controlVars.setRobotSpeed(0.0); 
 			controlVars.setRobotAngle(0.0);
 			controlVars.setRobotRotation(0.0);		
-			controlVars.setGyroDrive(true);
+			controlVars.setGyroDrive(false);
 			return true;
 		}			
 	}
