@@ -326,6 +326,9 @@ public class Auton {
 						trajectory.setAngle(Double.parseDouble(fields[0].trim()));
 						trajectory.setRotation(Double.parseDouble(fields[1].trim()));
 						trajectory.setSpeed(Double.parseDouble(fields[2].trim()));
+						trajectory.setIntakeIn(Boolean.parseBoolean(fields[3].trim()));
+						trajectory.setIntakeUp(Boolean.parseBoolean(fields[4].trim()));
+						trajectory.setIntakeDown(Boolean.parseBoolean(fields[5].trim()));
 						this.trajectoryList.add(trajectory);
 					} catch (NumberFormatException e) {
 						System.out.println("Motion profile " + fileName + " Numberformat Exception !!");
@@ -380,6 +383,9 @@ public class Auton {
 			controlVars.setRobotAngle((double)this.trajectoryList.get(idx).getAngle());
 			controlVars.setRobotSpeed((double)this.trajectoryList.get(idx).getSpeed());
 			controlVars.setRobotRotation((double)this.trajectoryList.get(idx).getRotation());
+			controlVars.setIntakeIn(this.trajectoryList.get(idx).isIntakeIn());
+			controlVars.setIntakeUp(this.trajectoryList.get(idx).isIntakeUp());
+			controlVars.setIntakeDown(this.trajectoryList.get(idx).isIntakeDown());
 			controlVars.setGyroDrive(false);
 				
 			
@@ -392,7 +398,10 @@ public class Auton {
 		} else {
 			controlVars.setRobotSpeed(0.0); 
 			controlVars.setRobotAngle(0.0);
-			controlVars.setRobotRotation(0.0);		
+			controlVars.setRobotRotation(0.0);	
+			controlVars.setIntakeIn(false);
+			controlVars.setIntakeUp(false);
+			controlVars.setIntakeDown(false);	
 			controlVars.setGyroDrive(false);
 			return true;
 		}			

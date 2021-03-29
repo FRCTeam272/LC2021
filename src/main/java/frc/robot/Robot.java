@@ -353,6 +353,9 @@ public class Robot extends TimedRobot {
                 replay.setAngle(controlVars.getRobotAngle());
                 replay.setRotation(controlVars.getRobotRotation());
                 replay.setSpeed(controlVars.getRobotSpeed());
+                replay.setIntakeIn(controlVars.isIntakeIn());
+                replay.setIntakeUp(controlVars.isIntakeUp());
+                replay.setIntakeDown(controlVars.isIntakeDown());
                 trajectoryList.add(replay);
             }
             
@@ -395,7 +398,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putBoolean("CalibrateDrives", this.calibrateDrives);
         SmartDashboard.putBoolean("fieldCentricDrive", this.fieldCentricDrive);
 
-        SmartDashboard.putString("AttackCode", this.attackCode);
+        //SmartDashboard.putString("AttackCode", this.attackCode);
 		SmartDashboard.putString("ComputedAttackCode", this.computedAttackCode);
     }
 
@@ -405,7 +408,7 @@ public class Robot extends TimedRobot {
                 FileWriter outputFile = new FileWriter("/c/AttachCode_" + this.attackCode + "_replay.csv");
                 this.trajectoryList.forEach((replay)->{
                     try {
-                        outputFile.write(String.format("%f, %f, %f\n", replay.getAngle(), replay.getRotation(), replay.getSpeed()));
+                        outputFile.write(String.format("%f, %f, %f, %b, %b, %b\n", replay.getAngle(), replay.getRotation(), replay.getSpeed(), replay.isIntakeIn(), replay.isIntakeUp(),replay.isIntakeDown()));
                     } catch (IOException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
