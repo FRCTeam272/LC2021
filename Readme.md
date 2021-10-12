@@ -23,3 +23,10 @@ http://www.revrobotics.com/content/sw/color-sensor-v3/sdk/REVColorSensorV3.json
 http://www.revrobotics.com/content/sw/max/sdk/REVRobotics.json
 
 
+## Auto Instructions
+
+- Hold 7 on the JoyStick (Operator)
+- pause
+- complete task
+- pause
+- Release 7
