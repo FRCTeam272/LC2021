@@ -37,6 +37,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  *   
  */
 public class LCTelemetry { 
+	// TODO @Tyler make a buttonm on smart dashboard that allows you to select weither to do a hardsave or a mem save
 
 	private String[] listRows;								
 	private String[] listColumns;				/** Arrays of columnNames, think ladder. Each step is data. They are numbered starting at 0.

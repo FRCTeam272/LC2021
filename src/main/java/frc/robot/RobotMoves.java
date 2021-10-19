@@ -133,17 +133,17 @@ public class RobotMoves {
         }
     }
 
-    private double degreesToPlusMinusOne(double angle) {
+    // private double degreesToPlusMinusOne(double angle) {
 
-        double result = angle;
+    //     double result = angle;
 
-        // Validate angle
-        if (angle > 90.0)
-            result = 90.0;
-        else if (angle < -90.0)
-            result = -90.0;
-        return result / 90.0;
-    }
+    //     // Validate angle
+    //     if (angle > 90.0)
+    //         result = 90.0;
+    //     else if (angle < -90.0)
+    //         result = -90.0;
+    //     return result / 90.0;
+    // }
 
     public boolean rotateByGyro(ControlVars controlVars, Sensors sensors, double angle, double rotation,
             boolean reset) {

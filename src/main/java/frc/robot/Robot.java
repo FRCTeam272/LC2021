@@ -7,15 +7,19 @@
 
 package frc.robot;
 
+import java.io.FileWriter;
 import java.io.IOException;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.cscore.UsbCamera;
-import edu.wpi.cscore.VideoSource.ConnectionStrategy;
+
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import java.util.ArrayList;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -77,6 +81,11 @@ public class Robot extends TimedRobot {
     private Climber climber;
     private String activeUSBCamera;
 
+    private String attackCode = SmartDashboard.getString("Auto Selector", "11");
+	private String computedAttackCode = "11";
+    private String gameData;
+    private ArrayList<Trajectory> trajectoryList;
+
     @Override
     public void robotInit() {
 
@@ -112,6 +121,7 @@ public class Robot extends TimedRobot {
         telem = new LCTelemetry();
         telem.loadConfig(config);
         auton = new Auton();
+        auton.loadMoves();
 
 
         // Set up camera server for driving camera
@@ -188,13 +198,20 @@ public class Robot extends TimedRobot {
     public void disabledInit() {
         telem.saveSpreadSheet();
         telem.restartTimer();
+        this.writeRecordedTrajectory();
+        auton.loadMoves();
+        
 
     }
 
     @Override
     public void autonomousInit() {
+        this.attackCode = SmartDashboard.getString("AttackCode", "11");
         sensors.zeroGyroBearing();
         auton.resetAuton();
+
+        this.gameData = DriverStation.getInstance().getGameSpecificMessage();
+		this.computedAttackCode = auton.computeAttackCode(this.attackCode, this.gameData);
     }
 
     @Override
@@ -216,6 +233,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+        this.attackCode = SmartDashboard.getString("AttackCode", "11");
         cameraSelection.setString(this.usbCamera0.getName());
     }
 
@@ -325,9 +343,25 @@ public class Robot extends TimedRobot {
             controlVars.setFieldCentricDrive(this.fieldCentricDrive);
             driveTrain.mapInputsToControlVars(inputs, controlVars);
             
+            if(inputs.getButton(107) && inputs.getButtonStateChanged(107)){
+                trajectoryList = new ArrayList<Trajectory>();
+            
+            }
 
+            if(inputs.getButton(107)){
+                Trajectory replay = new Trajectory();
+                replay.setAngle(controlVars.getRobotAngle());
+                replay.setRotation(controlVars.getRobotRotation());
+                replay.setSpeed(controlVars.getRobotSpeed());
+                replay.setIntakeIn(controlVars.isIntakeIn());
+                replay.setIntakeUp(controlVars.isIntakeUp());
+                replay.setIntakeDown(controlVars.isIntakeDown());
+                trajectoryList.add(replay);
+            }
+            
+            
             if(isAuton){
-                auton.dispatcher(controlVars, sensors, gyroNavigate, config);
+                auton.dispatcher(controlVars, sensors, gyroNavigate, config,this.computedAttackCode);
             }
 
             driveTrain.update(controlVars, sensors, gyroNavigate);
@@ -355,9 +389,39 @@ public class Robot extends TimedRobot {
     public void testPeriodic() {
     }
 
+    public void updatePreferences()  {
+
+		this.attackCode = Preferences.getInstance().getString("AttackCode", "22");
+	}
+
     public void outputToDashboard(boolean minDisplay) {
         SmartDashboard.putBoolean("CalibrateDrives", this.calibrateDrives);
         SmartDashboard.putBoolean("fieldCentricDrive", this.fieldCentricDrive);
+
+        //SmartDashboard.putString("AttackCode", this.attackCode);
+		SmartDashboard.putString("ComputedAttackCode", this.computedAttackCode);
     }
+
+    public void writeRecordedTrajectory() {
+        if(this.trajectoryList !=null && this.trajectoryList.size()>0) {
+            try {
+                FileWriter outputFile = new FileWriter("/c/AttachCode_" + this.attackCode + "_replay.csv");
+                this.trajectoryList.forEach((replay)->{
+                    try {
+                        outputFile.write(String.format("%f, %f, %f, %b, %b, %b\n", replay.getAngle(), replay.getRotation(), replay.getSpeed(), replay.isIntakeIn(), replay.isIntakeUp(),replay.isIntakeDown()));
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                });
+                
+                outputFile.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }  
+    }
+      
+}
 
 }
