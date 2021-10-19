@@ -154,7 +154,8 @@ public class Shooter {
         
 
         //Finding a target and adjusting angle of shooterPostionMotor, else set shooter postion to far right 
-        this.shooterPostionMotor.set(ControlMode.Position, this.shooterSensorOffset + this.shooterSensorPosition);
+        // TODO Check what happens if I comment this guy out
+        // this.shooterPostionMotor.set(ControlMode.Position, this.shooterSensorOffset + this.shooterSensorPosition);
 
         //Starts feeder motor and sends balls up to the fly wheel
         if(controlVars.isshooterShoot()){
