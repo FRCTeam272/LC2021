@@ -85,9 +85,15 @@ public class Shooter {
                 else if(llSkewRotation < -45 ){
                     llSkewRotation = -(90 + llSkewRotation);
                 }*/
-                if(llHorizontialOffset> .5){
+                // if(llHorizontialOffset> .5){
+                //     moveShooterRight();
+                // } else if(llHorizontialOffset <-.5){
+                //     moveShooterLeft();
+                // }
+
+                if(input.getOpZAxisValue()> .5){
                     moveShooterRight();
-                } else if(llHorizontialOffset <-.5){
+                } else if(input.getOpZAxisValue() <-.5){
                     moveShooterLeft();
                 }
                 
