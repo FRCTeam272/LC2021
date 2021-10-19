@@ -93,6 +93,7 @@ public class Shooter {
                 
 
                 this.llDistance = limelight.getDistance(this.llMountHeight, this.llMountAngle);
+                this.shooterPostionMotor = input.getOpRightYAxisValue()
                 //can play with changing RPM's based off 
                 //flyWheelTargetRPM = lldistance * RPMDistanceFactor;
                 SmartDashboard.putNumber("shooterLLHO", this.llHorizontialOffset);
