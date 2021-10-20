@@ -64,7 +64,7 @@ public class Shooter {
         LCTalonSRX.configureTalonSRX(this.shooterHoodMotor, config, ControlMode.Position, "ShooterHood");
         shooterHoodMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
 
-        this.shooterPostionMotor.set(ControlMode.Position, shooterSensorOffset + shooterSensorPosition );
+        // this.shooterPostionMotor.set(ControlMode.Position, shooterSensorOffset + shooterSensorPosition );
         
         
         //shooterPowerMotor.setIdleMode(IdleMode.kCoast);
