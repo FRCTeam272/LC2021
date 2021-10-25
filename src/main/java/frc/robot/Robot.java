@@ -70,7 +70,7 @@ public class Robot extends TimedRobot {
     private Sensors sensors;
     private SwerveDriveTrain driveTrain;
     private LimeLight limelight;
-    private Shooter shooter;
+    private ShooterAlt shooter;
     private LCIntake intake;
     private Auton auton;
     NetworkTableEntry cameraSelection;
@@ -148,7 +148,7 @@ public class Robot extends TimedRobot {
         sensors = new Sensors(config);
         driveTrain = new SwerveDriveTrain(config);
         limelight = new LimeLight();
-        shooter = new Shooter(config);
+        shooter = new ShooterAlt(config);
         intake = new LCIntake(config);
         climber = new Climber(config);
         sensors.addTelemetryHeaders(telem);

@@ -1,6 +1,5 @@
 package frc.robot;
 
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANSparkMax;
@@ -12,7 +11,7 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import  com.revrobotics.ControlType;
 import com.revrobotics.CANPIDController;
 
-public class Shooter {
+public class ShooterAlt {
 
     public  TalonSRX        shooterPostionMotor; //This Talon needs to be public because the colorSwitch Class needs to be able toacess it too.
     private TalonSRX        shooterFeederMotor;
@@ -46,11 +45,7 @@ public class Shooter {
     private double          shooterFarLeftPosition = 52.0;
     private double          shooterFarRightPosition = 30.0;
 
-
-    
-
-
-    public Shooter(Config config){
+	public ShooterAlt(Config config){
         loadConfig(config);
         shooterPowerMotor    = new CANSparkMax(config.getInt("shooterPowerMotor", 9), MotorType.kBrushless);
         shooterPIDcontroller = shooterPowerMotor.getPIDController();
@@ -72,48 +67,7 @@ public class Shooter {
 
     }
 
-    public void update(Config config, Sensors sensors, ControlVars controlVars, LimeLight limelight, Inputs input){
-
-        if(controlVars.isshooterTarget()){
-            if(limelight.getValidTargetFound()){
-
-                llHorizontialOffset = limelight.getHorizontialOffset();
-
-
-                /*llSkewRotation = limelight.getSkewRotation();
-                if(llSkewRotation >= -45){
-                    llSkewRotation = Math.abs(llSkewRotation);
-                }
-                else if(llSkewRotation < -45 ){
-                    llSkewRotation = -(90 + llSkewRotation);
-                }*/
-                // if(llHorizontialOffset> .5){
-                //     moveShooterRight();
-                // } else if(llHorizontialOffset <-.5){
-                //     moveShooterLeft();
-                // }
-
-                if(input.getOpZAxisValue()> .5){
-                    moveShooterRight();
-                } else if(input.getOpZAxisValue() <-.5){
-                    moveShooterLeft();
-                }
-                
-
-                //this.llDistance = limelight.getDistance(this.llMountHeight, this.llMountAngle);
-                //can play with changing RPM's based off 
-                //flyWheelTargetRPM = lldistance * RPMDistanceFactor;
-                SmartDashboard.putNumber("shooterLLHO", this.llHorizontialOffset);
-                SmartDashboard.putNumber("shooterLLSR", this.llSkewRotation);
-                SmartDashboard.putNumber("shooterllD", this.llDistance);
-
-            }
-        } else {
-            this.flyWheelTargetRPM = config.getDouble("flyWheelTargetRPM", 2300.0);
-            //if (!controlVars.colorSwitchButton) -- Do this to allow the color switch to control this mortor if it needs too -- this button has not been defined yet
-            //this.shooterPostionMotor.set(ControlMode.Position, this.shooterSensorOffset);
-        }
-
+    public void update(Config config, Sensors sensors, ControlVars controlVars, LimeLight limelight, Inputs input){                    
         //Manual control of shooter Postion;
         if (controlVars.isShooterLeft()) {
            moveShooterLeft();
@@ -254,4 +208,6 @@ public class Shooter {
         this.shooterFarLeftPosition     = config.getDouble("shooterFarLeftPosition", 0.0);
         this.shooterFarRightPosition    = config.getDouble("shooterFarRightPosition", 150.0);
     }
+}
+
 }
